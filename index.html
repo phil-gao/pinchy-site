@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinchy — Push-to-Talk from Apple Watch to Discord</title>
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --card: #242424;
+            --card-border: #2e2e2e;
+            --text: #e0e0e0;
+            --muted: rgba(255,255,255,0.45);
+            --dim: rgba(255,255,255,0.25);
+            --accent-indigo: #7b6cf6;
+            --accent-teal: #4fd1c5;
+            --accent-blue: #5b9cf6;
+            --accent-orange: #ed8936;
+            --accent-green: #48bb78;
+            --accent-red: #e05555;
+            --warm-gray: #5c5c5c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 80px 0 48px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+        .hero p {
+            font-size: 18px;
+            color: var(--muted);
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: var(--warm-gray);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* Flow diagram */
+        .flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            padding: 24px 16px;
+            background: var(--card);
+            border-radius: 14px;
+            margin: 32px 0 48px;
+            border: 1px solid var(--card-border);
+        }
+        .flow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+        .flow-node .icon { font-size: 22px; }
+        .flow-node .label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--muted);
+        }
+        .flow-arrow {
+            color: var(--dim);
+            font-size: 14px;
+            padding: 0 4px;
+        }
+
+        /* Section labels */
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        /* Requirements */
+        .requirements {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+        .req-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+        }
+        .req-row + .req-row { border-top: 1px solid var(--card-border); }
+        .req-row .icon { font-size: 16px; width: 24px; text-align: center; }
+        .req-row span { font-size: 14px; color: rgba(255,255,255,0.75); }
+
+        /* Step cards */
+        .step-card {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .step-card.open { border-color: rgba(255,255,255,0.15); }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .step-header:hover { background: rgba(255,255,255,0.03); }
+        .step-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .step-meta { flex: 1; }
+        .step-meta .step-num {
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .step-meta .step-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .step-chevron {
+            font-size: 12px;
+            color: var(--dim);
+            transition: transform 0.3s;
+        }
+        .step-card.open .step-chevron { transform: rotate(180deg); }
+        .step-body {
+            display: none;
+            border-top: 1px solid var(--card-border);
+            padding: 18px;
+        }
+        .step-card.open .step-body { display: block; }
+        .step-group { margin-bottom: 16px; }
+        .step-group:last-child { margin-bottom: 0; }
+        .step-group-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .step-group ol, .step-group ul {
+            padding-left: 0;
+            list-style: none;
+        }
+        .step-group li {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 6px;
+            display: flex;
+            gap: 8px;
+        }
+        .step-group li .num {
+            font-weight: 500;
+            min-width: 18px;
+            text-align: right;
+        }
+        .step-group code {
+            display: block;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            color: rgba(255,255,255,0.75);
+            background: rgba(0,0,0,0.4);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* Rules card */
+        .rules-card {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid rgba(237,137,54,0.2);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .rules-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--accent-orange);
+        }
+        .rules-body {
+            padding: 18px;
+            border-top: 1px solid var(--card-border);
+        }
+        .rule-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .rule-row:last-child { margin-bottom: 0; }
+        .rule-icon { font-size: 13px; width: 20px; text-align: center; padding-top: 2px; }
+        .rule-text { font-size: 14px; color: rgba(255,255,255,0.75); }
+
+        /* Quick ref */
+        .quick-ref {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            padding: 18px;
+            margin-bottom: 40px;
+        }
+        .quick-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .quick-row:last-child { margin-bottom: 0; }
+        .quick-row .emoji { font-size: 18px; }
+        .quick-row .label { font-size: 14px; color: var(--muted); }
+
+        /* Watch usage */
+        .watch-card {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        .watch-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+        }
+        .watch-step + .watch-step { border-top: 1px solid var(--card-border); }
+        .watch-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .watch-step span { font-size: 14px; color: rgba(255,255,255,0.75); }
+
+        /* Troubleshooting */
+        .trouble-card {
+            background: var(--card);
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            padding: 14px;
+            margin-bottom: 8px;
+        }
+        .trouble-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .trouble-header .icon { font-size: 12px; color: var(--accent-red); }
+        .trouble-header strong { font-size: 14px; }
+        .trouble-fix { font-size: 13px; color: var(--muted); }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 48px 0;
+            color: var(--dim);
+            font-size: 13px;
+        }
+        .footer a { color: var(--muted); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* Colors per step */
+        .c-indigo { color: var(--accent-indigo); }
+        .c-teal { color: var(--accent-teal); }
+        .c-blue { color: var(--accent-blue); }
+        .c-orange { color: var(--accent-orange); }
+        .c-green { color: var(--accent-green); }
+        .bg-indigo { background: rgba(123,108,246,0.2); color: var(--accent-indigo); }
+        .bg-teal { background: rgba(79,209,197,0.2); color: var(--accent-teal); }
+        .bg-blue { background: rgba(91,156,246,0.2); color: var(--accent-blue); }
+        .bg-orange { background: rgba(237,137,54,0.2); color: var(--accent-orange); }
+        .bg-green { background: rgba(72,187,120,0.2); color: var(--accent-green); }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 36px; }
+            .hero p { font-size: 16px; }
+            .flow-node .label { font-size: 9px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-badge">Apple Watch + Discord</div>
+        <h1>Pinchy</h1>
+        <p>Push-to-talk from your Apple Watch to Discord. Voice in, voice out.</p>
+    </div>
+
+    <!-- Flow -->
+    <div class="flow">
+        <div class="flow-node"><span class="icon">&#x231A;</span><span class="label">Watch</span></div>
+        <span class="flow-arrow">&#x203A;</span>
+        <div class="flow-node"><span class="icon">&#x1F4F1;</span><span class="label">iPhone</span></div>
+        <span class="flow-arrow">&#x203A;</span>
+        <div class="flow-node"><span class="icon">&#x1F5A5;</span><span class="label">Proxy</span></div>
+        <span class="flow-arrow">&#x203A;</span>
+        <div class="flow-node"><span class="icon">&#x1F4AC;</span><span class="label">Discord</span></div>
+        <span class="flow-arrow">&#x203A;</span>
+        <div class="flow-node"><span class="icon">&#x1F916;</span><span class="label">OpenClaw</span></div>
+    </div>
+
+    <!-- Requirements -->
+    <div class="section-label">Before You Start</div>
+    <div class="requirements">
+        <div class="req-row"><span class="icon">&#x231A;</span><span>Apple Watch paired to an iPhone</span></div>
+        <div class="req-row"><span class="icon">&#x1F4AC;</span><span>A Discord server you own or admin</span></div>
+        <div class="req-row"><span class="icon">&#x1F916;</span><span>OpenClaw running on a Pi or server</span></div>
+        <div class="req-row"><span class="icon">&#x1F4E6;</span><span>Docker on that machine (or Node.js 18+ and ffmpeg)</span></div>
+    </div>
+
+    <!-- Setup Steps -->
+    <div class="section-label">Setup</div>
+
+    <!-- Step 1 -->
+    <div class="step-card" onclick="this.classList.toggle('open')">
+        <div class="step-header">
+            <div class="step-badge bg-indigo">1</div>
+            <div class="step-meta">
+                <div class="step-num c-indigo">Step 1</div>
+                <div class="step-title">Create a Discord Bot</div>
+            </div>
+            <span class="step-chevron">&#x25BC;</span>
+        </div>
+        <div class="step-body">
+            <div class="step-group">
+                <div class="step-group-label c-indigo">Create the app</div>
+                <ul>
+                    <li><span class="num c-indigo">1.</span> Go to discord.com/developers/applications</li>
+                    <li><span class="num c-indigo">2.</span> Click "New Application" and name it (e.g. Pinchy)</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-indigo">Get your bot token</div>
+                <ul>
+                    <li><span class="num c-indigo">1.</span> Click "Bot" in the left sidebar</li>
+                    <li><span class="num c-indigo">2.</span> Click "Reset Token" and copy it</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-indigo">Enable required permissions</div>
+                <ul>
+                    <li><span class="num c-indigo">1.</span> On the Bot page, scroll to "Privileged Gateway Intents"</li>
+                    <li><span class="num c-indigo">2.</span> Turn on "Message Content Intent"</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-indigo">Invite the bot to your server</div>
+                <ul>
+                    <li><span class="num c-indigo">1.</span> Go to OAuth2 &rarr; URL Generator</li>
+                    <li><span class="num c-indigo">2.</span> Check "bot" under Scopes</li>
+                    <li><span class="num c-indigo">3.</span> Check: Send Messages, Attach Files, Read Message History</li>
+                    <li><span class="num c-indigo">4.</span> Copy the URL and open it to add the bot</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-card" onclick="this.classList.toggle('open')">
+        <div class="step-header">
+            <div class="step-badge bg-teal">2</div>
+            <div class="step-meta">
+                <div class="step-num c-teal">Step 2</div>
+                <div class="step-title">Run the Proxy Server</div>
+            </div>
+            <span class="step-chevron">&#x25BC;</span>
+        </div>
+        <div class="step-body">
+            <div class="step-group">
+                <div class="step-group-label c-teal">What is the proxy?</div>
+                <ul>
+                    <li>A small program that bridges your Watch to Discord. Run it on the same machine as OpenClaw.</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-teal">With Docker (recommended)</div>
+                <code>docker run -d --name pinchy-proxy \
+  -p 3847:3847 \
+  -e PROXY_SECRET=make_up_a_password \
+  ghcr.io/phil-gao/pinchy-proxy</code>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-teal">Without Docker</div>
+                <code>git clone https://github.com/phil-gao/pinchy-proxy.git
+cd pinchy-proxy && npm install
+cp .env.template .env
+node server.js</code>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-teal">Verify</div>
+                <ul>
+                    <li>Open <strong>http://your-ip:3847/health</strong> in your browser</li>
+                    <li>You should see <code style="display:inline;padding:2px 6px;">{"ok":true}</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card" onclick="this.classList.toggle('open')">
+        <div class="step-header">
+            <div class="step-badge bg-blue">3</div>
+            <div class="step-meta">
+                <div class="step-num c-blue">Step 3</div>
+                <div class="step-title">Configure the iOS App</div>
+            </div>
+            <span class="step-chevron">&#x25BC;</span>
+        </div>
+        <div class="step-body">
+            <div class="step-group">
+                <div class="step-group-label c-blue">Open Settings in Pinchy and fill in:</div>
+                <ul>
+                    <li><strong>Host:Port</strong> &mdash; your machine's IP and port (e.g. 192.168.1.50:3847)</li>
+                    <li><strong>Proxy Secret</strong> &mdash; the password you chose in Step 2</li>
+                    <li><strong>Bot Token</strong> &mdash; the token from Step 1</li>
+                    <li><strong>Responder User ID</strong> &mdash; your OpenClaw bot's Discord user ID</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-blue">Finding your bot's user ID</div>
+                <ul>
+                    <li><span class="num c-blue">1.</span> In Discord: Settings &rarr; Advanced &rarr; Developer Mode</li>
+                    <li><span class="num c-blue">2.</span> Right-click your OpenClaw bot &rarr; Copy User ID</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card" onclick="this.classList.toggle('open')">
+        <div class="step-header">
+            <div class="step-badge bg-orange">4</div>
+            <div class="step-meta">
+                <div class="step-num c-orange">Step 4</div>
+                <div class="step-title">Configure OpenClaw</div>
+            </div>
+            <span class="step-chevron">&#x25BC;</span>
+        </div>
+        <div class="step-body">
+            <div class="step-group">
+                <div class="step-group-label c-orange">Allow Pinchy's bot</div>
+                <ul>
+                    <li>Most bots ignore messages from other bots by default.</li>
+                    <li>Whitelist Pinchy's Application ID in your OpenClaw config.</li>
+                    <li>Find it in: Developer Portal &rarr; your app &rarr; General Information</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-card" onclick="this.classList.toggle('open')">
+        <div class="step-header">
+            <div class="step-badge bg-orange">5</div>
+            <div class="step-meta">
+                <div class="step-num c-orange">Step 5</div>
+                <div class="step-title">Teach Your Bot the Rules</div>
+            </div>
+            <span class="step-chevron">&#x25BC;</span>
+        </div>
+        <div class="step-body">
+            <div class="step-group">
+                <div class="step-group-label c-orange">On first save</div>
+                <ul>
+                    <li>Pinchy shows a full-screen rules card</li>
+                    <li>Screenshot it and send it to your bot's Discord channel</li>
+                    <li>Your bot learns how to respond from the image</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rules -->
+    <div style="margin-top:40px;">
+        <div class="section-label">Default Rules</div>
+        <div class="rules-card">
+            <div class="rules-header">&#x1F4CB; PINCHY DEFAULT RULES</div>
+            <div class="rules-body">
+                <div class="rule-row"><span class="rule-icon" style="color:var(--accent-blue)">&#x1F4AC;</span><span class="rule-text">&#x1F4DD; = reply in text</span></div>
+                <div class="rule-row"><span class="rule-icon" style="color:var(--accent-indigo)">&#x1F50A;</span><span class="rule-text">&#x1F399;&#xFE0F; = reply in audio</span></div>
+                <div class="rule-row"><span class="rule-icon" style="color:var(--accent-teal)">&#x21C4;</span><span class="rule-text">If both appear, use the most recent marker</span></div>
+                <div class="rule-row"><span class="rule-icon" style="color:var(--accent-mint)">&#x2753;</span><span class="rule-text">If no marker appears, default to text</span></div>
+                <div class="rule-row"><span class="rule-icon" style="color:var(--accent-green)">&#x2702;</span><span class="rule-text">Keep replies short, clear, and direct</span></div>
+                <div class="rule-row"><span class="rule-icon" style="color:var(--accent-indigo)">&#x1F4C4;</span><span class="rule-text">Match the requested length and format</span></div>
+                <div class="rule-row"><span class="rule-icon" style="color:var(--accent-orange)">&#x26A0;</span><span class="rule-text">If audio fails, fall back to text and say so</span></div>
+                <div class="rule-row"><span class="rule-icon" style="color:var(--accent-teal)">&#x21A9;</span><span class="rule-text">Reply to the same message/thread when possible</span></div>
+            </div>
+        </div>
+
+        <div class="quick-ref">
+            <div class="section-label" style="margin-bottom:12px;">Quick Reference</div>
+            <div class="quick-row"><span class="emoji">&#x1F4DD;</span><span class="label">= text</span></div>
+            <div class="quick-row"><span class="emoji">&#x1F399;&#xFE0F;</span><span class="label">= audio</span></div>
+            <div class="quick-row"><span class="emoji">&#x2753;</span><span class="label">no marker = default to text</span></div>
+            <div class="quick-row"><span class="emoji">&#x2702;&#xFE0F;</span><span class="label">keep it short</span></div>
+            <div class="quick-row"><span class="emoji">&#x1F504;</span><span class="label">fall back to text if audio fails</span></div>
+        </div>
+    </div>
+
+    <!-- Using Pinchy -->
+    <div class="section-label">Using Pinchy</div>
+    <div class="watch-card">
+        <div class="watch-step"><div class="watch-num">1</div><span>Open Pinchy on your Apple Watch</span></div>
+        <div class="watch-step"><div class="watch-num">2</div><span>Tap the channel name to switch channels</span></div>
+        <div class="watch-step"><div class="watch-num">3</div><span>Hold "Hold to Speak" and talk</span></div>
+        <div class="watch-step"><div class="watch-num">4</div><span>Release &mdash; your message is sent to Discord</span></div>
+        <div class="watch-step"><div class="watch-num">5</div><span>Swipe left for text mode, right for voice mode</span></div>
+        <div class="watch-step"><div class="watch-num">6</div><span>Your bot's reply plays back automatically</span></div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="section-label">Troubleshooting</div>
+
+    <div class="trouble-card">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Proxy unreachable</strong></div>
+        <div class="trouble-fix">Make sure the proxy is running. Test with http://your-ip:3847/health</div>
+    </div>
+    <div class="trouble-card">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Auth error on Discord</strong></div>
+        <div class="trouble-fix">Bot token is wrong. Developer Portal &rarr; Bot &rarr; Reset Token and copy again.</div>
+    </div>
+    <div class="trouble-card">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Bot not responding</strong></div>
+        <div class="trouble-fix">Enable Message Content Intent in Developer Portal &rarr; Bot &rarr; Privileged Gateway Intents.</div>
+    </div>
+    <div class="trouble-card">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>OpenClaw ignoring Pinchy</strong></div>
+        <div class="trouble-fix">Whitelist Pinchy's bot Application ID in your OpenClaw config.</div>
+    </div>
+    <div class="trouble-card">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>No channels on Watch</strong></div>
+        <div class="trouble-fix">Open the iOS app &rarr; Settings &rarr; Save to sync channels.</div>
+    </div>
+    <div class="trouble-card" style="margin-bottom:40px;">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Voice not playing</strong></div>
+        <div class="trouble-fix">Grant microphone access on the Watch when prompted.</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Pinchy &mdash; <a href="https://github.com/phil-gao/pinchy-proxy">GitHub</a></p>
+    </div>
+
+</div>
+
+</body>
+</html>
