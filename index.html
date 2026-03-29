@@ -459,6 +459,15 @@ node server.js</code>
                     <li>You should see <code style="display:inline;padding:2px 6px;">{"ok":true}</code></li>
                 </ul>
             </div>
+            <div class="step-group">
+                <div class="step-group-label c-teal">Remote access with Tailscale</div>
+                <ul>
+                    <li>Pinchy only works on your local network by default.</li>
+                    <li>To use Pinchy away from home, install <a href="https://tailscale.com" style="color:var(--accent-teal)">Tailscale</a> on both your server and your iPhone.</li>
+                    <li>Use your server's Tailscale IP (e.g. 100.x.x.x) as the proxy host in Step 3.</li>
+                    <li>Enable <strong>"Connect on Demand"</strong> in iPhone Settings &rarr; Tailscale to keep the connection alive.</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -476,7 +485,7 @@ node server.js</code>
             <div class="step-group">
                 <div class="step-group-label c-blue">Open Settings in Pinchy and fill in:</div>
                 <ul>
-                    <li><strong>Host:Port</strong> &mdash; your machine's IP and port (e.g. 192.168.1.50:3847)</li>
+                    <li><strong>Host:Port</strong> &mdash; your machine's IP and port (e.g. 192.168.1.50:3847 or Tailscale IP 100.x.x.x:3847)</li>
                     <li><strong>Proxy Secret</strong> &mdash; the password you chose in Step 2</li>
                     <li><strong>Bot Token</strong> &mdash; the token from Step 1</li>
                     <li><strong>Responder User ID</strong> &mdash; your OpenClaw bot's Discord user ID</li>
@@ -580,6 +589,10 @@ node server.js</code>
     <div class="trouble-card">
         <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Proxy unreachable</strong></div>
         <div class="trouble-fix">Make sure the proxy is running. Test with http://your-ip:3847/health</div>
+    </div>
+    <div class="trouble-card">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Works at home but not outside</strong></div>
+        <div class="trouble-fix">Install Tailscale on your server and iPhone. Use the Tailscale IP as your proxy host. Enable "Connect on Demand" in iPhone Settings &rarr; Tailscale.</div>
     </div>
     <div class="trouble-card">
         <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Auth error on Discord</strong></div>
