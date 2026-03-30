@@ -370,7 +370,8 @@
     <div class="requirements">
         <div class="req-row"><span class="icon">&#x231A;</span><span>Apple Watch paired to an iPhone</span></div>
         <div class="req-row"><span class="icon">&#x1F4AC;</span><span>A Discord server you own or admin</span></div>
-        <div class="req-row"><span class="icon">&#x1F916;</span><span>OpenClaw running on a Pi or server</span></div>
+        <div class="req-row"><span class="icon">&#x1F916;</span><span>A bot in your server (<a href="https://openclaw.ai" style="color:var(--accent-teal)">OpenClaw</a> or any bot that replies to messages)</span></div>
+        <div class="req-row"><span class="icon">&#x1F5A5;</span><span>A server or Raspberry Pi to run the proxy</span></div>
         <div class="req-row"><span class="icon">&#x1F4E6;</span><span>Docker on that machine (or Node.js 18+ and ffmpeg)</span></div>
     </div>
 
@@ -435,7 +436,8 @@
             <div class="step-group">
                 <div class="step-group-label c-teal">What is the proxy?</div>
                 <ul>
-                    <li>A small program that bridges your Watch to Discord. Run it on the same machine as OpenClaw.</li>
+                    <li>A small program that handles audio conversion and Discord API calls. The Watch can't talk to Discord directly &mdash; the proxy bridges that gap.</li>
+                    <li>Run it on the same machine as your bot. It requires Node.js 18+ and ffmpeg.</li>
                 </ul>
             </div>
             <div class="step-group">
@@ -447,9 +449,14 @@
             </div>
             <div class="step-group">
                 <div class="step-group-label c-teal">Without Docker</div>
-                <code>git clone https://github.com/phil-gao/pinchy-proxy.git
+                <code># Install prerequisites first:
+# Pi/Linux: sudo apt install -y nodejs npm ffmpeg
+# macOS: brew install node ffmpeg
+
+git clone https://github.com/phil-gao/pinchy-proxy.git
 cd pinchy-proxy && npm install
 cp .env.template .env
+# Edit .env and set PROXY_SECRET to a random password
 node server.js</code>
             </div>
             <div class="step-group">
@@ -457,6 +464,7 @@ node server.js</code>
                 <ul>
                     <li>Open <strong>http://your-ip:3847/health</strong> in your browser</li>
                     <li>You should see <code style="display:inline;padding:2px 6px;">{"ok":true}</code></li>
+                    <li>If you get a connection error, check that port 3847 is not blocked by a firewall</li>
                 </ul>
             </div>
             <div class="step-group">
@@ -488,14 +496,31 @@ node server.js</code>
                     <li><strong>Host:Port</strong> &mdash; your machine's IP and port (e.g. 192.168.1.50:3847 or Tailscale IP 100.x.x.x:3847)</li>
                     <li><strong>Proxy Secret</strong> &mdash; the password you chose in Step 2</li>
                     <li><strong>Bot Token</strong> &mdash; the token from Step 1</li>
-                    <li><strong>Responder User ID</strong> &mdash; your OpenClaw bot's Discord user ID</li>
+                    <li><strong>Responder User ID</strong> (optional) &mdash; the Discord user ID of the bot you want replies from</li>
                 </ul>
             </div>
             <div class="step-group">
-                <div class="step-group-label c-blue">Finding your bot's user ID</div>
+                <div class="step-group-label c-blue">Finding your machine's IP</div>
                 <ul>
-                    <li><span class="num c-blue">1.</span> In Discord: Settings &rarr; Advanced &rarr; Developer Mode</li>
-                    <li><span class="num c-blue">2.</span> Right-click your OpenClaw bot &rarr; Copy User ID</li>
+                    <li>Raspberry Pi / Linux: <code style="display:inline;padding:2px 6px;">hostname -I</code></li>
+                    <li>macOS: <code style="display:inline;padding:2px 6px;">ipconfig getifaddr en0</code></li>
+                    <li>Windows: <code style="display:inline;padding:2px 6px;">ipconfig</code> (look for IPv4 Address)</li>
+                    <li>Tailscale: use the 100.x.x.x IP from your Tailscale dashboard</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-blue">Finding your bot's user ID (optional)</div>
+                <ul>
+                    <li><span class="num c-blue">1.</span> In Discord: Settings &rarr; Advanced &rarr; turn on Developer Mode</li>
+                    <li><span class="num c-blue">2.</span> Right-click your bot in the member list &rarr; Copy User ID</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-blue">What does success look like?</div>
+                <ul>
+                    <li>Home tab shows "PINCHY" with a green dot and "Connected"</li>
+                    <li>Settings shows Proxy: Connected and Discord Bot: Connected</li>
+                    <li>Channels sync to your Watch automatically</li>
                 </ul>
             </div>
         </div>
@@ -507,17 +532,31 @@ node server.js</code>
             <div class="step-badge bg-orange">4</div>
             <div class="step-meta">
                 <div class="step-num c-orange">Step 4</div>
-                <div class="step-title">Configure OpenClaw</div>
+                <div class="step-title">Configure Your Bot</div>
             </div>
             <span class="step-chevron">&#x25BC;</span>
         </div>
         <div class="step-body">
             <div class="step-group">
+                <div class="step-group-label c-orange">What is OpenClaw?</div>
+                <ul>
+                    <li><a href="https://openclaw.ai" style="color:var(--accent-orange)">OpenClaw</a> is a cross-platform personal AI assistant that connects to Discord and other services. It works great with Pinchy, but any Discord bot that replies to messages will work.</li>
+                </ul>
+            </div>
+            <div class="step-group">
                 <div class="step-group-label c-orange">Allow Pinchy's bot</div>
                 <ul>
                     <li>Most bots ignore messages from other bots by default.</li>
-                    <li>Whitelist Pinchy's Application ID in your OpenClaw config.</li>
-                    <li>Find it in: Developer Portal &rarr; your app &rarr; General Information</li>
+                    <li>Whitelist Pinchy's bot ID so your bot responds to Pinchy's messages.</li>
+                    <li>Find Pinchy's bot ID: Developer Portal &rarr; your Pinchy app &rarr; General Information &rarr; Application ID</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-orange">How replies work</div>
+                <ul>
+                    <li>If your bot replies with a <strong>voice message</strong> (OGG/Opus, flags:8192), Pinchy plays the audio on the Watch.</li>
+                    <li>If your bot replies with <strong>text</strong>, Pinchy displays it on the Watch screen.</li>
+                    <li>Pinchy handles both automatically &mdash; no special configuration needed on the Pinchy side.</li>
                 </ul>
             </div>
         </div>
@@ -540,6 +579,39 @@ node server.js</code>
                     <li>Pinchy shows a full-screen rules card</li>
                     <li>Screenshot it and send it to your bot's Discord channel</li>
                     <li>Your bot learns how to respond from the image</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 6: Test -->
+    <div class="step-card" onclick="this.classList.toggle('open')">
+        <div class="step-header">
+            <div class="step-badge bg-green">6</div>
+            <div class="step-meta">
+                <div class="step-num c-green">Step 6</div>
+                <div class="step-title">Test It</div>
+            </div>
+            <span class="step-chevron">&#x25BC;</span>
+        </div>
+        <div class="step-body">
+            <div class="step-group">
+                <div class="step-group-label c-green">Verify end-to-end</div>
+                <ul>
+                    <li><span class="num c-green">1.</span> Open Pinchy on your Apple Watch</li>
+                    <li><span class="num c-green">2.</span> Select a channel from the dropdown</li>
+                    <li><span class="num c-green">3.</span> Hold "Hold to Speak" and say "Hello, testing"</li>
+                    <li><span class="num c-green">4.</span> Release and wait &mdash; your message should appear in Discord</li>
+                    <li><span class="num c-green">5.</span> Your bot replies &mdash; the Watch plays audio or shows text</li>
+                </ul>
+            </div>
+            <div class="step-group">
+                <div class="step-group-label c-green">If it doesn't work</div>
+                <ul>
+                    <li>Check the iOS app Home tab &mdash; is it showing "Connected"?</li>
+                    <li>Check Discord &mdash; did the message appear in the channel?</li>
+                    <li>Check your bot &mdash; did it reply?</li>
+                    <li>See Troubleshooting below for common issues.</li>
                 </ul>
             </div>
         </div>
@@ -581,6 +653,7 @@ node server.js</code>
         <div class="watch-step"><div class="watch-num">4</div><span>Release &mdash; your message is sent to Discord</span></div>
         <div class="watch-step"><div class="watch-num">5</div><span>Swipe left for text mode, right for voice mode</span></div>
         <div class="watch-step"><div class="watch-num">6</div><span>Your bot's reply plays back automatically</span></div>
+        <div class="watch-step"><div class="watch-num">7</div><span>Use the Digital Crown to adjust volume (voice) or scroll text (text)</span></div>
     </div>
 
     <!-- Troubleshooting -->
@@ -610,9 +683,17 @@ node server.js</code>
         <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>No channels on Watch</strong></div>
         <div class="trouble-fix">Open the iOS app &rarr; Settings &rarr; Save to sync channels.</div>
     </div>
-    <div class="trouble-card" style="margin-bottom:40px;">
+    <div class="trouble-card">
         <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Voice not playing</strong></div>
-        <div class="trouble-fix">Grant microphone access on the Watch when prompted.</div>
+        <div class="trouble-fix">Grant microphone access when prompted on the Watch. If audio cuts out when the screen dims, the app stays alive in the background &mdash; try again.</div>
+    </div>
+    <div class="trouble-card">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Messages don't send when iPhone is backgrounded</strong></div>
+        <div class="trouble-fix">Don't force-quit the iOS app (swipe up in app switcher). Leave it running in the background. If using Tailscale, enable "Connect on Demand".</div>
+    </div>
+    <div class="trouble-card" style="margin-bottom:40px;">
+        <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Watch shows "Timed out"</strong></div>
+        <div class="trouble-fix">Your bot took too long to reply, or the audio conversion was slow. Try again &mdash; Pinchy waits up to 90 seconds.</div>
     </div>
 
     <!-- Footer -->
