@@ -370,7 +370,7 @@
     <div class="requirements">
         <div class="req-row"><span class="icon">&#x231A;</span><span>Apple Watch paired to an iPhone</span></div>
         <div class="req-row"><span class="icon">&#x1F4AC;</span><span>A Discord server you own or admin</span></div>
-        <div class="req-row"><span class="icon">&#x1F916;</span><span>A bot in your server (<a href="https://openclaw.ai" style="color:var(--accent-teal)">OpenClaw</a> or any bot that replies to messages)</span></div>
+        <div class="req-row"><span class="icon">&#x1F916;</span><span>A bot in your server (<a target="_blank" rel="noopener" href="https://openclaw.ai" style="color:var(--accent-teal)">OpenClaw</a> or any bot that replies to messages)</span></div>
         <div class="req-row"><span class="icon">&#x1F5A5;</span><span>A server or Raspberry Pi to run the proxy</span></div>
         <div class="req-row"><span class="icon">&#x1F4E6;</span><span>Docker on that machine (or Node.js 18+ and ffmpeg)</span></div>
     </div>
@@ -392,7 +392,7 @@
             <div class="step-group">
                 <div class="step-group-label c-indigo">Create the app</div>
                 <ul>
-                    <li><span class="num c-indigo">1.</span> Go to discord.com/developers/applications</li>
+                    <li><span class="num c-indigo">1.</span> Go to <a target="_blank" rel="noopener" href="https://discord.com/developers/applications" style="color:var(--accent-indigo)">discord.com/developers/applications</a></li>
                     <li><span class="num c-indigo">2.</span> Click "New Application" and name it (e.g. Pinchy)</li>
                 </ul>
             </div>
@@ -471,7 +471,7 @@ node server.js</code>
                 <div class="step-group-label c-teal">Remote access with Tailscale</div>
                 <ul>
                     <li>Pinchy only works on your local network by default.</li>
-                    <li>To use Pinchy away from home, install <a href="https://tailscale.com" style="color:var(--accent-teal)">Tailscale</a> on both your server and your iPhone.</li>
+                    <li>To use Pinchy away from home, install <a target="_blank" rel="noopener" href="https://tailscale.com" style="color:var(--accent-teal)">Tailscale</a> on both your server and your iPhone.</li>
                     <li>Use your server's Tailscale IP (e.g. 100.x.x.x) as the proxy host in Step 3.</li>
                     <li>Enable <strong>"Connect on Demand"</strong> in iPhone Settings &rarr; Tailscale to keep the connection alive.</li>
                 </ul>
@@ -540,7 +540,7 @@ node server.js</code>
             <div class="step-group">
                 <div class="step-group-label c-orange">What is OpenClaw?</div>
                 <ul>
-                    <li><a href="https://openclaw.ai" style="color:var(--accent-orange)">OpenClaw</a> is a cross-platform personal AI assistant that connects to Discord and other services. It works great with Pinchy, but any Discord bot that replies to messages will work.</li>
+                    <li><a target="_blank" rel="noopener" href="https://openclaw.ai" style="color:var(--accent-orange)">OpenClaw</a> is a cross-platform personal AI assistant that connects to Discord and other services. It works great with Pinchy, but any Discord bot that replies to messages will work.</li>
                 </ul>
             </div>
             <div class="step-group">
@@ -548,7 +548,7 @@ node server.js</code>
                 <ul>
                     <li>Most bots ignore messages from other bots by default.</li>
                     <li>Whitelist Pinchy's bot ID so your bot responds to Pinchy's messages.</li>
-                    <li>Find Pinchy's bot ID: Developer Portal &rarr; your Pinchy app &rarr; General Information &rarr; Application ID</li>
+                    <li>Find Pinchy's bot ID: <a target="_blank" rel="noopener" href="https://discord.com/developers/applications" style="color:var(--accent-orange)">Developer Portal</a> &rarr; your Pinchy app &rarr; General Information &rarr; Application ID</li>
                 </ul>
             </div>
             <div class="step-group">
@@ -669,11 +669,11 @@ node server.js</code>
     </div>
     <div class="trouble-card">
         <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Auth error on Discord</strong></div>
-        <div class="trouble-fix">Bot token is wrong. Developer Portal &rarr; Bot &rarr; Reset Token and copy again.</div>
+        <div class="trouble-fix">Bot token is wrong. <a target="_blank" rel="noopener" href="https://discord.com/developers/applications" style="color:var(--accent-red);opacity:0.8">Developer Portal</a> &rarr; Bot &rarr; Reset Token and copy again.</div>
     </div>
     <div class="trouble-card">
         <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>Bot not responding</strong></div>
-        <div class="trouble-fix">Enable Message Content Intent in Developer Portal &rarr; Bot &rarr; Privileged Gateway Intents.</div>
+        <div class="trouble-fix">Enable Message Content Intent in <a target="_blank" rel="noopener" href="https://discord.com/developers/applications" style="color:var(--accent-red);opacity:0.8">Developer Portal</a> &rarr; Bot &rarr; Privileged Gateway Intents.</div>
     </div>
     <div class="trouble-card">
         <div class="trouble-header"><span class="icon">&#x26A0;</span><strong>OpenClaw ignoring Pinchy</strong></div>
@@ -698,7 +698,7 @@ node server.js</code>
 
     <!-- Footer -->
     <div class="footer">
-        <p>Pinchy &mdash; <a href="https://github.com/phil-gao/pinchy-proxy">GitHub</a> &middot; <a href="https://ghcr.io/phil-gao/pinchy-proxy">Docker</a> &middot; <a href="https://openclaw.ai">OpenClaw</a></p>
+        <p>Pinchy &mdash; <a target="_blank" rel="noopener" href="https://github.com/phil-gao/pinchy-proxy">GitHub</a> &middot; <a target="_blank" rel="noopener" href="https://ghcr.io/phil-gao/pinchy-proxy">Docker</a> &middot; <a target="_blank" rel="noopener" href="https://openclaw.ai">OpenClaw</a></p>
     </div>
 
 </div>
